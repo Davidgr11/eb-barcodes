@@ -6,35 +6,41 @@ function downloadBarcode(imgElement, title) {
     link.click();
 }
 
-function copyToClipboard(text) {
-    // Crear un elemento temporal
-    const textArea = document.createElement('textarea');
-    textArea.value = text;
-    
-    // Hacer el elemento invisible
-    textArea.style.position = 'fixed';
-    textArea.style.left = '-999999px';
-    textArea.style.top = '-999999px';
-    document.body.appendChild(textArea);
-    
-    // Seleccionar y copiar el texto
-    textArea.focus();
-    textArea.select();
-    
+function copyToClipboard(imgElement) {
     try {
+        // Crear un elemento temporal
+        const tempDiv = document.createElement('div');
+        tempDiv.style.position = 'fixed';
+        tempDiv.style.left = '-9999px';
+        tempDiv.style.top = '-9999px';
+        
+        // Clonar la imagen
+        const imgClone = imgElement.cloneNode(true);
+        tempDiv.appendChild(imgClone);
+        document.body.appendChild(tempDiv);
+        
+        // Seleccionar la imagen
+        const range = document.createRange();
+        range.selectNode(imgClone);
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+        
+        // Intentar copiar
         const successful = document.execCommand('copy');
         if (successful) {
-            alert('ISBN copiado al portapapeles');
+            alert('Imagen copiada al portapapeles');
         } else {
-            alert('No se pudo copiar el ISBN');
+            alert('No se pudo copiar la imagen. Por favor, usa el botón de descarga.');
         }
+        
+        // Limpiar
+        selection.removeAllRanges();
+        document.body.removeChild(tempDiv);
     } catch (err) {
-        console.error('Error al copiar:', err);
-        alert('Error al copiar el ISBN');
+        console.error('Error al copiar la imagen:', err);
+        alert('No se pudo copiar la imagen. Por favor, usa el botón de descarga.');
     }
-    
-    // Limpiar
-    document.body.removeChild(textArea);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -46,6 +52,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnText = document.querySelector('.btn-text');
     const spinner = document.querySelector('.spinner');
 
+    // Set para almacenar ISBNs únicos
+    const usedISBNs = new Set();
+
     // Cargar datos guardados al iniciar
     loadSavedData();
 
@@ -54,18 +63,37 @@ document.addEventListener('DOMContentLoaded', () => {
         e.target.value = e.target.value.replace(/[^0-9]/g, '');
     });
 
-    // Función para generar un ISBN aleatorio
+    // Función para generar un ISBN aleatorio único
     function generateRandomISBN() {
-        const timestamp = Date.now().toString();
-        const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-        const first12 = timestamp.slice(-9) + random;
-        const checkDigit = calculateCheckDigit(first12);
-        return first12 + checkDigit;
+        let isbn;
+        let attempts = 0;
+        const maxAttempts = 100; // Prevenir bucle infinito
+
+        do {
+            // Usar timestamp y números aleatorios para mayor unicidad
+            const timestamp = Date.now().toString();
+            const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+            const first12 = timestamp.slice(-8) + random;
+            const checkDigit = calculateCheckDigit(first12);
+            isbn = first12 + checkDigit;
+            attempts++;
+        } while (usedISBNs.has(isbn) && attempts < maxAttempts);
+
+        if (attempts >= maxAttempts) {
+            throw new Error('No se pudo generar un ISBN único después de varios intentos');
+        }
+
+        return isbn;
     }
 
     // Manejador del botón de ISBN aleatorio
     randomIsbnBtn.addEventListener('click', () => {
-        isbnInput.value = generateRandomISBN();
+        try {
+            const newISBN = generateRandomISBN();
+            isbnInput.value = newISBN;
+        } catch (error) {
+            alert('Error al generar ISBN único. Por favor, intenta de nuevo.');
+        }
     });
 
     // Función para calcular el dígito de control EAN-13
@@ -115,6 +143,11 @@ document.addEventListener('DOMContentLoaded', () => {
             return false;
         }
 
+        if (usedISBNs.has(isbn)) {
+            alert('Este ISBN ya ha sido utilizado. Por favor, genera uno nuevo o usa otro.');
+            return false;
+        }
+
         if (!title) {
             alert('Por favor ingrese un título');
             return false;
@@ -149,6 +182,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const savedData = JSON.parse(localStorage.getItem('barcodeData') || '[]');
         savedData.push({ title, isbn, timestamp });
         localStorage.setItem('barcodeData', JSON.stringify(savedData));
+        usedISBNs.add(isbn); // Agregar ISBN al set de usados
     }
 
     // Función para cargar datos guardados
@@ -165,6 +199,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 margin: 10
             });
             addTableRow(item.title, item.isbn, canvas, item.timestamp);
+            usedISBNs.add(item.isbn); // Agregar ISBN al set de usados
         });
     }
 
@@ -180,10 +215,10 @@ document.addEventListener('DOMContentLoaded', () => {
             <td>
                 <div class="action-buttons">
                     <button class="download-btn" onclick="downloadBarcode(this.parentElement.parentElement.parentElement.querySelector('img'), '${title}')">
-                        <i class="fas fa-download"></i> Descargar
+                        <i class="fas fa-download"></i> Descargar Imagen
                     </button>
-                    <button class="copy-btn" onclick="copyToClipboard('${isbn}')">
-                        <i class="fas fa-copy"></i> Copiar
+                    <button class="copy-btn" onclick="copyToClipboard(this.parentElement.parentElement.parentElement.querySelector('img'))">
+                        <i class="fas fa-copy"></i> Copiar Imagen
                     </button>
                 </div>
             </td>
