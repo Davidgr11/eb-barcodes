@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English Book Code Generator</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <img src="logoEB.png" alt="Logo" class="logo-img">
+            <h1>Generador de Códigos de Barra</h1>
+        </div>
+    </header>
+
+    <main>
+        <section class="generator-section">
+            <div class="form-container">
+                <div class="input-group">
+                    <label for="isbn">ISBN (13 dígitos):</label>
+                    <div class="input-with-button">
+                        <input type="text" id="isbn" maxlength="13" placeholder="Ingrese el código ISBN">
+                        <button id="randomIsbnBtn" class="random-btn" title="Generar ISBN aleatorio">
+                            <i class="fas fa-random"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label for="title">Título:</label>
+                    <input type="text" id="title" placeholder="Ingrese el título">
+                </div>
+                <button id="generateBtn" class="generate-btn">
+                    <span class="btn-text">Generar Código</span>
+                    <div class="spinner hidden"></div>
+                </button>
+            </div>
+        </section>
+
+        <section class="results-section">
+            <h2>Códigos Generados</h2>
+            <div class="table-container">
+                <table id="codesTable">
+                    <thead>
+                        <tr>
+                            <th>Título</th>
+                            <th>ISBN</th>
+                            <th>Código de Barra</th>
+                            <th>Fecha y Hora</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="codesTableBody">
+                        <!-- Los códigos generados se insertarán aquí -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html> 
