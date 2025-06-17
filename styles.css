@@ -21,6 +21,7 @@ header {
 .logo {
     display: flex;
     align-items: center;
+    justify-content: flex-start;
     gap: 1rem;
     max-width: 1200px;
     margin: 0 auto;
@@ -251,6 +252,6 @@ th {
 } 
 
 .logo-img {
-    width: 100px;
-    height: 50px;
+    width: 60px;
+    height: 60px;
 }
