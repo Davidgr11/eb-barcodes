@@ -243,7 +243,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const timestamp = new Date().toLocaleString();
 
             // Simular carga de 2 segundos
-            await new Promise(resolve => setTimeout(resolve, 2000));
+            await new Promise(resolve => setTimeout(resolve, 1000));
 
             // Generar código de barra
             const canvas = await generateBarcode(isbn);
