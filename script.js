@@ -48,6 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const titleInput = document.getElementById('title');
     const generateBtn = document.getElementById('generateBtn');
     const randomIsbnBtn = document.getElementById('randomIsbnBtn');
+    const exportBtn = document.getElementById('exportBtn');
     const codesTableBody = document.getElementById('codesTableBody');
     const btnText = document.querySelector('.btn-text');
     const spinner = document.querySelector('.spinner');
@@ -264,4 +265,78 @@ document.addEventListener('DOMContentLoaded', () => {
             generateBtn.disabled = false;
         }
     });
+
+    // Función para exportar la tabla como HTML con imágenes embebidas
+    function exportToExcel() {
+        const rows = codesTableBody.querySelectorAll('tr');
+        if (rows.length === 0) {
+            alert('No hay códigos para exportar. Primero genera algunos códigos de barras.');
+            return;
+        }
+
+        exportBtn.disabled = true;
+        exportBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Exportando...';
+
+        try {
+            let htmlContent = `
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <title>Códigos de Barras</title>
+                    <style>
+                        table { border-collapse: collapse; width: 100%; }
+                        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                        th { background-color: #f2f2f2; }
+                        img { max-width: 200px; height: auto; }
+                    </style>
+                </head>
+                <body>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Título</th>
+                                <th>ISBN</th>
+                                <th>Código de Barras</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+
+            rows.forEach((row, i) => {
+                const title = row.cells[0].textContent;
+                const isbn = row.cells[1].textContent;
+                const barcodeImg = row.cells[2].querySelector('img');
+                htmlContent += `
+                    <tr>
+                        <td>${title}</td>
+                        <td>${isbn}</td>
+                        <td>${barcodeImg ? `<img src="${barcodeImg.src}" alt="Código de barras ${i + 1}">` : ''}</td>
+                    </tr>
+                `;
+            });
+
+            htmlContent += `
+                        </tbody>
+                    </table>
+                </body>
+                </html>
+            `;
+
+            const blob = new Blob([htmlContent], { type: 'text/html' });
+            const fileName = `codigos_barras_${new Date().toISOString().slice(0, 10)}.html`;
+            saveAs(blob, fileName);
+
+            setTimeout(() => {
+                alert('¡Exportación completada! Abre el archivo HTML en Excel y guárdalo como .xlsx para mantener las imágenes.');
+            }, 100);
+        } catch (error) {
+            alert('Error al exportar.');
+        } finally {
+            exportBtn.disabled = false;
+            exportBtn.innerHTML = '<i class="fas fa-file-excel"></i> Exportar Códigos';
+        }
+    }
+
+    // Event listener para el botón de exportación
+    exportBtn.addEventListener('click', exportToExcel);
 }); 

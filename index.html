@@ -40,7 +40,12 @@
         </section>
 
         <section class="results-section">
-            <h2>Códigos Generados</h2>
+            <div class="results-header">
+                <h2>Códigos Generados</h2>
+                <button id="exportBtn" class="export-btn" title="Exportar todos los códigos a Excel">
+                    <i class="fas fa-file-excel"></i> Exportar Códigos
+                </button>
+            </div>
             <div class="table-container">
                 <table id="codesTable">
                     <thead>
@@ -61,6 +66,9 @@
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html> 
